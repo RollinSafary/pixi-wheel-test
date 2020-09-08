@@ -4,7 +4,6 @@ import Wheel from './Wheel';
 
 export default class WheelExtended extends Wheel {
   protected dynamic_text_value: boolean;
-  protected allAngles: number[];
 
   constructor(protected game: PIXI.Application) {
     super(game);
@@ -13,10 +12,6 @@ export default class WheelExtended extends Wheel {
 
   public enableDynamicTextDuringRotation(enabled: boolean = true): void {
     this.dynamic_text_value = enabled;
-    this.allAngles = [];
-    for (let i: number = 0; i < 36; i++) {
-      this.allAngles.push(i * 10);
-    }
   }
 
   protected startWheelRotation(
@@ -24,6 +19,10 @@ export default class WheelExtended extends Wheel {
     duration_ms: number,
   ): void {
     super.startWheelRotation(target_angle, duration_ms);
+    this.rotation_tween.eventCallback(
+      'onComplete',
+      this.onRotationComplete.bind(this),
+    );
     this.rotation_tween.eventCallback(
       'onUpdate',
       this.updateTextValueBasedOnAngle.bind(this),
@@ -40,20 +39,17 @@ export default class WheelExtended extends Wheel {
       return;
     }
     const current_angle: number = Math.round(normalizeAngle(this.center.angle));
-    for (const angle of this.allAngles) {
-      if (Math.abs(Math.abs(current_angle) - Math.abs(angle)) < 5) {
-        const is_angle_decimal_even: boolean = (angle / 10) % 2 === 0;
-        const target_segments_array: number[] = is_angle_decimal_even
-          ? RED_SEGMENTS
-          : BLACK_SEGMENTS;
-        const start_value: number = is_angle_decimal_even ? 0 : -10;
-        const index: number = Math.abs(angle - start_value - 360) / 20;
-        if (!!index) {
-          this.text.text = `${target_segments_array[index]}`;
-          this.text.tint = is_angle_decimal_even ? 0xff0000 : 0x000000;
-        }
-        break;
-      }
+    const rounded_angle: number = Math.ceil(current_angle / 10) * 10;
+    const is_angle_decimal_even: boolean = (rounded_angle / 10) % 2 === 0;
+    const target_segments_array: number[] = is_angle_decimal_even
+      ? RED_SEGMENTS
+      : BLACK_SEGMENTS;
+    const start_value: number = is_angle_decimal_even ? 0 : -10;
+    const index: number =
+      normalizeAngle(Math.abs(rounded_angle - start_value - 360)) / 20;
+    if (!!target_segments_array[index]) {
+      this.text.text = `${target_segments_array[index]}`;
+      this.text.tint = is_angle_decimal_even ? 0xff0000 : 0x000000;
     }
   }
 
