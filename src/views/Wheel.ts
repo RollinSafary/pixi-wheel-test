@@ -95,6 +95,20 @@ export default class Wheel extends PIXI.Container {
   protected onRotationComplete(): void {
     this.center.angle = normalizeAngle(this.center.angle);
     this.rotation_tween = null;
+    this.animateText();
+  }
+
+  protected animateText(): void {
+    // couldn't find how to setup yoyo
+    new TimelineMax()
+      .to(this.text.scale, 0.2, {
+        x: 1.2,
+        y: 1.2,
+      })
+      .to(this.text.scale, 0.2, {
+        x: 1,
+        y: 1,
+      });
   }
 
   protected addSprite(key: string, x: number = 0, y: number = 0): PIXI.Sprite {
