@@ -1,7 +1,7 @@
 import { gsap } from 'gsap';
 import { PixiPlugin } from 'gsap/PixiPlugin';
 import 'pixi.js';
-import './utils/extenstions';
+import './utils/extensions';
 import Wheel from './views/Wheel';
 import WheelExtended from './views/WheelExtended';
 
